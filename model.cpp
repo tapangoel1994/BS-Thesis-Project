@@ -15,7 +15,7 @@ using namespace std;
 const int N=200;
 
 
-float L,r_s=1,v=.03,delta_t=1,eta;
+float L,r=1,v=.03,delta_t=1,eta;
 
 
 float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T,FILE *fp);
@@ -148,42 +148,39 @@ void update_vel(float x[2][N],float y[2][N],float theta[2][N])
 {
      for(int i=0; i<N;i++)
      {
-	  float avgtheta =0;
-	  float sumtheta = 0;
-	  int count = 0;
-	  float noisetheta;
+	  float sumsin;
+	  float sumcos;
+	  float count;
 	  
-	  for(int j=0;j<N;j++)
+	  sumsin = 0;
+	  sumcos = 0;
+	  count = 0;
+	  
+	  for(int j =0 ; j < N; j++)
 	  {
-	       float dx,dy;
-	       dx = fabs(x[0][i]-x[0][j]);
-	       dy = fabs(y[0][i]- y[0][j]);
-	       if(dx > L/2) dx = L-dx;
-	       if(dy > L/2) dy = L-dy;
+	       d = distance(x[0][i],x[0][j],y[0][i],y[0][j]);
 	       
-	       float d = sqrt( dx*dx +dy*dy );
-	       
-	       if(d < r_s)
+	       if(d < r)
 	       {
-		    sumtheta +=theta[0][j];
-		    count++;
+		    sumsin += sin( theta[0][j]);
+		    sumcos += cos( theta[0][j]);
+		    count += 1;
 	       }
 	  }
-	  
-	  avgtheta = sumtheta/count;
-	  srand(time(NULL));
-	  noisetheta = -eta/2 + ( ((float)rand())/ ((float)RAND_MAX) )*eta;
-	  
-	  theta[1][i] = avgtheta + noisetheta;  
-	  
-	  if(theta[1][i]>PI)
-	  {
-	       theta[1][i] = theta[1][i]-2*PI;
-	  }
-	  else if(theta[1][i]< -PI)
-	  {
-	       theta[1][i] = theta[1][i] + 2*PI;  
-	  }
+	       
+	       float sinavg;
+	       float cosavg;
+	       float thetaavg;
+	       float delta_theta; 
+	       
+	       sinavg = sumsin/count;
+	       cosavg = sumcos/count;
+	       thetaavg = arctan(sinavg,cosavg); //define arctan function
+	       detla_theta = eta*( (float)rand()/(float)RAND_MAX ) - eta/2;
+	       
+	       theta[1][i] = thetaavg + delta_theta;
+	       
+	       //Make function to restrict theta between -PI and PI
      }
 }
 
@@ -221,7 +218,7 @@ float distance(float x1,float x2,float y1,float y2)
      if(dx > L/2)
 	  dx = L-dx;
      if( dy > L/2)
-	  dy = L-dy;;
+	  dy = L-dy;
      
      return( sqrt(dx*dx + dy*dy) );
 }
