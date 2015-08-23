@@ -18,14 +18,15 @@ const int N=200;
 float L,r=1,v=.03,delta_t=1,eta;
 
 
-float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T,FILE *fp);
-void initialize(float x[2][N],float y[2][N],float theta[2][N]);
-void update_pos(float x[2][N],float y[2][N],float theta[2][N]);
-void update_vel(float x[2][N],float y[2][N],float theta[2][N]);
-float distance(float x1,float x2,float y1,float y2);
-float arctan(float sin,float cos);
-void swap(float x[2][N],float y[2][N],float theta[2][N]);
-float Orderparameter(float theta[2][N]);
+float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T,FILE *fp); //Runs simulation
+void initialize(float x[2][N],float y[2][N],float theta[2][N]); // Gives random initial values to position and direction of each particle
+void update_pos(float x[2][N],float y[2][N],float theta[2][N]); // Updates position of each particle
+void update_vel(float x[2][N],float y[2][N],float theta[2][N]); // Updates velocity of each particle
+float distance(float x1,float x2,float y1,float y2); // calculates distance along torus between two points
+float arctan(float sin,float cos); //generates the angle between [-PI PI] for given sin and cos values
+float limit(float x); // limits angle to [-PI PI] for some angle x
+void swap(float x[2][N],float y[2][N],float theta[2][N]); // x[0][i] = x[1][i] and so for other variables
+float Orderparameter(float theta[2][N]); 
 float *correlation(float x[2][N],float y[2][N],float theta[2][N],float l,float delta_l);
 
 
@@ -181,7 +182,7 @@ void update_vel(float x[2][N],float y[2][N],float theta[2][N])
 	       
 	       theta[1][i] = thetaavg + delta_theta;
 	       
-	       //Make function to restrict theta between -PI and PI
+	       theta[1][i] = limit(theta[1][i]);
      }
 }
 
@@ -235,6 +236,33 @@ float arctan(float sin,float cos)
      if(sin == 0 && cos < 0) return(PI);
      if(sin > 0 && cos == 0) return(PI/2);
      if(sin < 0 && cos == 0) return(-PI/2);
+     
+}
+
+float limit(float x)
+{
+     if(x <= PI && x >= -PI) return(x);
+     
+     while(!(x <=PI && x >= -PI))
+     {
+	  
+	  if(x > PI && x <= 2*PI) x = x - 2*PI;
+	  else if(x < -PI && x >= -2*PI) x = x + 2*PI;
+	  else
+	  {
+	       if(x > 2*PI)
+	       {
+		    while(x >= 2*PI) x = x - 2*PI;
+	       }
+	       
+	       if(x < 0)
+	       {
+		    while(x <= 0) x = x + 2*PI;
+	       }
+	  }  
+     }
+     
+     return x;
      
 }
 
