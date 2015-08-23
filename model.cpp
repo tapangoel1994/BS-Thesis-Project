@@ -23,6 +23,7 @@ void initialize(float x[2][N],float y[2][N],float theta[2][N]);
 void update_pos(float x[2][N],float y[2][N],float theta[2][N]);
 void update_vel(float x[2][N],float y[2][N],float theta[2][N]);
 float distance(float x1,float x2,float y1,float y2);
+float arctan(float sin,float cos);
 void swap(float x[2][N],float y[2][N],float theta[2][N]);
 float Orderparameter(float theta[2][N]);
 float *correlation(float x[2][N],float y[2][N],float theta[2][N],float l,float delta_l);
@@ -151,7 +152,7 @@ void update_vel(float x[2][N],float y[2][N],float theta[2][N])
 	  float sumsin;
 	  float sumcos;
 	  float count;
-	  
+	  float d;
 	  sumsin = 0;
 	  sumcos = 0;
 	  count = 0;
@@ -175,8 +176,8 @@ void update_vel(float x[2][N],float y[2][N],float theta[2][N])
 	       
 	       sinavg = sumsin/count;
 	       cosavg = sumcos/count;
-	       thetaavg = arctan(sinavg,cosavg); //define arctan function
-	       detla_theta = eta*( (float)rand()/(float)RAND_MAX ) - eta/2;
+	       thetaavg = arctan(sinavg,cosavg); 
+	       delta_theta = eta*( (float)rand()/(float)RAND_MAX ) - eta/2;
 	       
 	       theta[1][i] = thetaavg + delta_theta;
 	       
@@ -221,6 +222,20 @@ float distance(float x1,float x2,float y1,float y2)
 	  dy = L-dy;
      
      return( sqrt(dx*dx + dy*dy) );
+}
+
+float arctan(float sin,float cos)
+{
+     if(sin > 0  && cos > 0) return(atan(sin/cos));
+     if(sin < 0  && cos > 0) return(atan(sin/cos));
+     if(sin > 0  && cos < 0) return(PI + atan(sin/cos));
+     if(sin < 0  && cos < 0) return(-PI + atan(sin/cos));
+     
+     if(sin == 0 && cos > 0) return(0);
+     if(sin == 0 && cos < 0) return(PI);
+     if(sin > 0 && cos == 0) return(PI/2);
+     if(sin < 0 && cos == 0) return(-PI/2);
+     
 }
 
 void write_to_file(float x[2][N],float y[2][N])
