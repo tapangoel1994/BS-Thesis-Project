@@ -41,17 +41,20 @@ int main()
      float x[2][N],y[2][N],theta[2][N];
      int n=5;
      float v_a[n],mean,stdev;
-     float density = 4;
+     float density;
      char name[50];
      long int T = 5000;
      FILE *data;
-     data = fopen("Density_4.00N_40.dat","w");
+     data = fopen("Noise_2.50N_40.dat","w");
     
      fprintf(data,"Density\tNoise\tOP\tstdev\n");
-	  L = sqrt(N/density);
 	  
-	  for(eta =0;eta<=6;eta+=.25)
+     eta = 2.50;
+	  
+	  for(density = 0.25; density <= 10; density += 0.25)
 	  {
+	       L = sqrt(N/density);
+	       
 	       mean = 0;
 	       stdev = 0;
 	       
