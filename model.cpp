@@ -12,13 +12,13 @@ using namespace std;
 #define PI 3.14159
 
 
-const int N=200;
+const int N=40;
 
 
 float L,r=1,v=.03,delta_t=1,eta;
 
 
-float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T,FILE *fp); //Runs simulation
+float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T); //Runs simulation
 void initialize(float x[2][N],float y[2][N],float theta[2][N]); // Gives random initial values to position and direction of each particle
 void update_pos(float x[2][N],float y[2][N],float theta[2][N]); // Updates position of each particle
 void update_vel(float x[2][N],float y[2][N],float theta[2][N]); // Updates velocity of each particle
@@ -39,66 +39,66 @@ void write_to_file(float x[2][N],float y[2][N]);
 int main()
 {
      float x[2][N],y[2][N],theta[2][N];
-     int n=10;
+     int n=5;
      float v_a[n],mean,stdev;
-     float density;
+     float density = 4;
      char name[50];
-     
-     
-     
-     for(density = .05;density<=5;density+=0.5)
-     {
+     long int T = 5000;
+     FILE *data;
+     data = fopen("Density_4.00N_40.dat","w");
+    
+     fprintf(data,"Density\tNoise\tOP\tstdev\n");
 	  L = sqrt(N/density);
 	  
-	  for(eta =.5;eta<=5;eta+=.5)
+	  for(eta =0;eta<=6;eta+=.25)
 	  {
-	       for(long int T = 15000; T<=15000; T+= 5000)
+	       mean = 0;
+	       stdev = 0;
+	       
+	       for(int i=0;i<n;i+=1)
 	       {
-		    for(int i=0;i<1;i++)
-		    {
-			 FILE *timedat;
-			 sprintf(name,"time_%.1f_%.1f_%ld_%d.dat",density,eta,T,i);
-			 timedat = fopen(name,"w");
-			 v_a[i]=simulate(x,y,theta,T,timedat);
-			 fclose(timedat);
-		    }
-	
-	       } 
+		    v_a[i]=simulate(x,y,theta,T);
+		    mean += v_a[i];
+		    stdev += v_a[i]*v_a[i];
+	       }
+	       
+	       mean = mean/n;
+	       stdev = stdev/(n-1) - n*(mean*mean)/(n-1);
+	       fprintf(data,"%.2f\t%.2f\t%.3f\t%.3f\n",density,eta,mean,stdev);
+	       
+	       
 	  }
 	  
-	 
-     }
-     
-     
-    // timeseriesplot();
+	  fclose(data);
      
      
      return 0;
 }
 
 
-float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T,FILE *fp)
+float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T)
 {
      
-     FILE *gnupipe;
-     gnupipe = popen("gnuplot -persistent","w");
+   // FILE *gnupipe;
+   //  gnupipe = popen("gnuplot -persistent","w");
    
      
-     initialize(x,y,theta);     
+     initialize(x,y,theta);   
+     
      for(long int t=0;t<T;t++)
      {
 	  update_pos(x,y,theta);
 	  update_vel(x,y,theta);
 	  
-	  fprintf(fp,"%ld\t%f\n",t,Orderparameter(theta));
+	 // fprintf(fp,"%ld\t%f\n",t,Orderparameter(theta));
 	  write_to_file(x,y);
 	  
-	  plot(gnupipe);
+	  //plot(gnupipe);
 	  
 	  swap(x,y,theta);
      }
      
-     pclose(gnupipe);
+    // pclose(gnupipe);
     
      
      return (Orderparameter(theta));
@@ -287,7 +287,7 @@ void plot(FILE *fp)
      int i=1;
      double l=1;
      float x;
-     x= 8.9*10/L;
+     x= 4.9*10/L;
      
      fprintf(fp,"set terminal wxt size 600,600\n");
      fprintf(fp,"set size square 1,1\n");
