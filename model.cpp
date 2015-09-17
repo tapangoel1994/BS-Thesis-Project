@@ -45,11 +45,11 @@ int main()
      char name[50];
      long int T = 5000;
      FILE *data;
-     data = fopen("Noise_2.50N_40.dat","w");
+     data = fopen("Noise_3.50N_40.dat","w");
     
      fprintf(data,"Density\tNoise\tOP\tstdev\n");
 	  
-     eta = 2.50;
+     eta = 3.50;
 	  
 	  for(density = 0.25; density <= 10; density += 0.25)
 	  {
