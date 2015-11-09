@@ -1,6 +1,8 @@
 //This code simulates the original Viscek Model as is in the 1995 PRL - no repulsion, no turning angle, scalar noise and angle based implementation
 // Angles are chosen over [-PI,PI] and are maintained so throughout.
 // The size of spheres in the animations are not to scale.
+// Purpose of code is to generate data for correlation measurement.
+// This model is to generate data for autocorrelation measurements
 #include<stdio.h>
 #include<iostream>
 #include<stdlib.h>
@@ -15,7 +17,7 @@ using namespace std;
 const int N=100;
 
 
-float L,r=1,v=.03,delta_t=1,eta;
+float L,r=0,v=.03,delta_t=1,eta;
 
 
 float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T, FILE *fp); //Runs simulation
@@ -46,20 +48,20 @@ int main()
      long int T = 5000;
      FILE *data;
      
-    
-     density = 5.00;
-	  
+     
+     density = 3.00;
+     
      L = sqrt(N/density);
-	  
-     for(eta = 0;eta <= 7;eta+= .25)
+     
+     for(eta = 0;eta <= (.1);eta+= .25)
      {
-	  sprintf(name,"Correlations/Density_%.2fNoise_%.2f.csv",density,eta);
+	  sprintf(name,"directedmigration.csv");
 	  printf("%s\n",name);
 	  data = fopen(name,"w");
 	  
-	v_a[0] = simulate(x,y,theta,T,data); 
-	
-	fclose(data);
+	  v_a[0] = simulate(x,y,theta,T,data); 
+	  
+	  fclose(data);
 	  
      }
      
@@ -71,9 +73,9 @@ int main()
 float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T,FILE *fp)
 {
      
-   // FILE *gnupipe;
-   //  gnupipe = popen("gnuplot -persistent","w");
-   
+      //FILE *gnupipe;
+      //gnupipe = popen("gnuplot -persistent","w");
+     
      
      initialize(x,y,theta);   
      long int t;
@@ -83,40 +85,40 @@ float simulate(float x[2][N],float y[2][N],float theta[2][N],long int T,FILE *fp
 	  update_pos(x,y,theta);
 	  update_vel(x,y,theta);
 	  
-	 // fprintf(fp,"%ld\t%f\n",t,Orderparameter(theta));
-	 // write_to_file(x,y);
+	  // fprintf(fp,"%ld\t%f\n",t,Orderparameter(theta));
+	  //write_to_file(x,y);
 	  
 	  //plot(gnupipe);
 	  
 	  swap(x,y,theta);
      }
      
-    // pclose(gnupipe);
-
-    for(i = 0;i < (N-1);i++)
-    {
-	fprintf(fp,"x%d,y%d,theta%d,",i,i,i); 
-	 
+      //pclose(gnupipe);
+     
+     for(i = 0;i < (N-1);i++)
+     {
+	  fprintf(fp,"x%d,y%d,theta%d,",i+1,i+1,i+1); 
+	  
      }
-     fprintf(fp,"x%d,y%d,theta%d\n",i,i,i);
-    
-    for(t=0;t<500;t++)
-    {
-	 update_pos(x,y,theta);
-	 update_vel(x,y,theta);
-	 
-	 for(i = 0; i < (N-1); i++)
-	 {
-	      fprintf(fp,"%.2f,%.2f,%.2f,",x[1][i],y[1][i],theta[1][i]);
-	      
-	 }
-	 
-	 fprintf(fp,"%.2f,%.2f,%.2f\n",x[1][i],y[1][i],theta[1][i]);
-	 
-	 
-	 swap(x,y,theta);
-    }
-    
+     fprintf(fp,"x%d,y%d,theta%d\n",i+1,i+1,i+1);
+     
+     for(t=0;t<500;t++)
+     {
+	  update_pos(x,y,theta);
+	  update_vel(x,y,theta);
+	  
+	  for(i = 0; i < (N-1); i++)
+	  {
+	       fprintf(fp,"%.2f,%.2f,%.2f,",x[1][i],y[1][i],theta[1][i]);
+	       
+	  }
+	  
+	  fprintf(fp,"%.2f,%.2f,%.2f\n",x[1][i],y[1][i],theta[1][i]);
+	  
+	  
+	  swap(x,y,theta);
+     }
+     
      
      return (Orderparameter(theta));
 }
@@ -130,7 +132,7 @@ void initialize(float x[2][N],float y[2][N],float theta[2][N])
      {
 	  x[0][i]= ( (float)rand()/(float)RAND_MAX )*L;
 	  y[0][i]= ( ((float)rand())/((float)RAND_MAX) )*L;
-	  theta[0][i] = -PI + ( ((float)rand())/ ((float)RAND_MAX) )*2*PI;   
+	  theta[0][i] = 0/*-PI + ( ((float)rand())/ ((float)RAND_MAX) )*2*PI*/;   
      }
 }
 
@@ -167,45 +169,45 @@ void update_vel(float x[2][N],float y[2][N],float theta[2][N])
 {
      for(int i=0; i<N;i++)
      {
-	  float sumsin;
-	  float sumcos;
-	  float count;
-	  float d;
-	  sumsin = 0;
-	  sumcos = 0;
-	  count = 0;
+// 	  float sumsin;
+// 	  float sumcos;
+// 	  float count;
+// 	  float d;
+// 	  sumsin = 0;
+// 	  sumcos = 0;
+// 	  count = 0;
+// 	  
+// 	  for(int j =0 ; j < N; j++)
+// 	  {
+// 	       d = distance(x[0][i],x[0][j],y[0][i],y[0][j]);
+// 	       
+// 	       if(d < r)
+// 	       {
+// 		    sumsin += sin( theta[0][j]);
+// 		    sumcos += cos( theta[0][j]);
+// 		    count += 1;
+// 	       }
+// 	  }
+// 	  
+// 	  float sinavg;
+// 	  float cosavg;
+// 	  float thetaavg;
+// 	  float delta_theta; 
+// 	  
+// 	  if(count == 0) {
+// 	       count = 1;
+// 	       sumsin = sin(theta[0][i]);
+// 	       sumcos = cos(theta[0][i]);
+// 	  }
+// 	  
+// 	  sinavg = sumsin/count;
+// 	  cosavg = sumcos/count;
+// 	  thetaavg = arctan(sinavg,cosavg); 
+	  float delta_theta = eta*( (float)rand()/(float)RAND_MAX ) - eta/2;
 	  
-	  for(int j =0 ; j < N; j++)
-	  {
-	       d = distance(x[0][i],x[0][j],y[0][i],y[0][j]);
-	       
-	       if(d < r)
-	       {
-		    sumsin += sin( theta[0][j]);
-		    sumcos += cos( theta[0][j]);
-		    count += 1;
-	       }
-	  }
-	       
-	       float sinavg;
-	       float cosavg;
-	       float thetaavg;
-	       float delta_theta; 
-	       
-	       if(count == 0) {
-		    count = 1;
-		    sumsin = sin(theta[0][i]);
-		    sumcos = cos(theta[0][i]);
-	       }
-	       
-	       sinavg = sumsin/count;
-	       cosavg = sumcos/count;
-	       thetaavg = arctan(sinavg,cosavg); 
-	       delta_theta = eta*( (float)rand()/(float)RAND_MAX ) - eta/2;
-	       
-	       theta[1][i] = thetaavg + delta_theta;
-	       
-	       theta[1][i] = limit(theta[1][i]);
+	  theta[1][i] =  theta[0][i]  /* delta_theta*/;
+	  
+	  theta[1][i] = limit(theta[1][i]);
      }
 }
 
@@ -354,8 +356,8 @@ float *correlation(float x[2][N],float y[2][N],float theta[2][N],float l = 0,flo
 		    float d = distance(x[1][i],x[1][j],y[1][i],y[1][j]);
 		    if(d > l && d < (l+delta_l) )
 		    {
-			count++;
-			sum += cos(theta[1][i])*cos(theta[1][j]) + sin(theta[1][i])*sin(theta[1][j]);
+			 count++;
+			 sum += cos(theta[1][i])*cos(theta[1][j]) + sin(theta[1][i])*sin(theta[1][j]);
 		    }
 	       }
 	  }
@@ -366,14 +368,14 @@ float *correlation(float x[2][N],float y[2][N],float theta[2][N],float l = 0,flo
      }
      
      return p;
-	  
+     
 }
 
 void timeseriesplot()
 {
      char name[50],output[50];
-      FILE *fp;
-      fp = popen("gnuplot","w");
+     FILE *fp;
+     fp = popen("gnuplot","w");
      
      
      
@@ -387,39 +389,39 @@ void timeseriesplot()
 		    FILE *fp;
 		    fp = popen("gnuplot","w");
 		    
+		    
+		    
+		    
+		    fprintf(fp,"set terminal png\n");
+		    fprintf(fp,"set xrange [0:%ld]\n",T);
+		    fprintf(fp,"set yrange [0:1.2]\n");
+		    fprintf(fp,"set xlabel 'T'\n");
+		    fprintf(fp,"set ylabel 'Order Parameter'\n");
+		    fprintf(fp,"set title \'D_%.1f,eta_%.1f,T_%ld\'",density,eta,T);
+		    sprintf(output,"time_%.1f_%.1f_%ld.png",density,eta,T);
+		    fprintf(fp,"set output \"%s\"",output);
+		    sprintf(name,"time_%.1f_%.1f_%ld_0.dat",density,eta,T);
+		    
+		    fprintf(fp,"plot \'%s\' u 1:2,",name);
+		    for(int i=1;i<9;i++)
+		    {
+			 sprintf(name,"time_%.1f_%.1f_%ld_%d.dat",density,eta,T,i);
+			 fprintf(fp,"\'%s\' u 1:2,",name);
 			 
-			 
-			 
-			 fprintf(fp,"set terminal png\n");
-			 fprintf(fp,"set xrange [0:%ld]\n",T);
-			 fprintf(fp,"set yrange [0:1.2]\n");
-			 fprintf(fp,"set xlabel 'T'\n");
-			 fprintf(fp,"set ylabel 'Order Parameter'\n");
-			 fprintf(fp,"set title \'D_%.1f,eta_%.1f,T_%ld\'",density,eta,T);
-			 sprintf(output,"time_%.1f_%.1f_%ld.png",density,eta,T);
-			 fprintf(fp,"set output \"%s\"",output);
-			 sprintf(name,"time_%.1f_%.1f_%ld_0.dat",density,eta,T);
-			 
-			 fprintf(fp,"plot \'%s\' u 1:2,",name);
-			 for(int i=1;i<9;i++)
-			 {
-			      sprintf(name,"time_%.1f_%.1f_%ld_%d.dat",density,eta,T,i);
-			      fprintf(fp,"\'%s\' u 1:2,",name);
-			 
-			 }
-			 sprintf(name,"time_%.1f_%.1f_%ld_9.dat",density,eta,T);
-			 fprintf(fp,"\'%s\' u 1:2 \n",name);
-			 
-			 fclose(fp);
+		    }
+		    sprintf(name,"time_%.1f_%.1f_%ld_9.dat",density,eta,T);
+		    fprintf(fp,"\'%s\' u 1:2 \n",name);
+		    
+		    fclose(fp);
 		    
 	       } 
 	  }
 	  
 	  
      }
-
-
-
+     
+     
+     
 }
 
-     
+
